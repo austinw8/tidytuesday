@@ -1,0 +1,205 @@
+
+
+```{r}
+{ 
+  library(tidyverse) 
+  library(skimr) 
+  library(janitor)
+  library(lubridate)
+  library(stringr)
+  library(ggridges)
+}
+
+marbles <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-06-02/marbles.csv') 
+
+marbles_2 <- marbles |> 
+  separate_wider_position(
+    race, 
+    widths = c(series = 2, race_type = 1, race_number = 1)
+  )
+
+skimr::skim(marbles)
+
+```
+
+```{r}
+
+marbles <- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-06-02/marbles.csv') |> 
+  clean_names(case = "snake") |> 
+  separate_wider_delim(
+    date, 
+    delim = "-", 
+    names = c("day", "month", "year")
+  ) |> 
+  mutate(month = case_when(
+    month == "Feb" ~ "02",
+    month == "Mar" ~ "03",
+    month == "Apr" ~ "04"
+  )) |> 
+  mutate(year = paste0(year, "20")) |> 
+  mutate(date = str_c(marbles$day, marbles$month, marbles$year, sep = "-")) |> 
+  relocate(date) |> 
+  select(-day:-year)
+
+marbles$date <- dmy(marbles$date)
+
+str(marbles)
+```
+
+```{r}
+
+ggplot(marbles, aes(x = date)) +
+  geom_bar() +
+  coord_flip()
+
+marbles |> 
+  count(date)
+```
+
+```{r}
+
+marbles |> 
+  distinct(marble_name)
+
+marbles |> 
+  distinct(team_name)
+
+ggplot(marbles, aes(x = fct_reorder(marble_name, time_s), y = time_s)) +
+  geom_col() +
+  coord_flip()
+
+```
+
+```{r}
+marbles |> 
+  filter(race == "S1Q1") |> 
+  ggplot(aes(x = fct_reorder(marble_name, -time_s), y = time_s)) +
+  geom_col() +
+  coord_flip()
+```
+```{r}
+marbles |> 
+  mutate(speed_mps = track_length_m / time_s) |> 
+  group_by(marble_name) |> 
+  summarise(avg_speed = mean(speed_mps, na.rm = TRUE)) |> 
+  ggplot(aes(x = fct_reorder(marble_name, avg_speed), y = avg_speed)) +
+  geom_col() +
+  coord_flip()
+
+marbles |> 
+  mutate(speed_mps = track_length_m / time_s) |> 
+  group_by(marble_name) |> 
+  summarise(total_avg_time_lap = mean(avg_time_lap, na.rm = TRUE)) |> 
+  ggplot(aes(x = fct_reorder(marble_name, -total_avg_time_lap), y = total_avg_time_lap)) +
+  geom_col() +
+  coord_flip()
+```
+```{r}
+marbles |> 
+  distinct(track_length_m) |> 
+  arrange(track_length_m)
+
+
+```
+
+
+```{r}
+ggplot(marbles, aes(x = pole, y = points)) +
+  geom_point()
+
+ggplot(marbles, aes(x = track_length_m, y = avg_time_lap)) +
+  geom_point(position = "jitter")
+
+ggplot(marbles, aes(x = track_length_m, y = avg_time_lap, fill = team_name, color = team_name)) +
+  geom_boxplot() +
+  facet_wrap(~track_length_m, scales = "free_x")
+
+ggplot(marbles, aes(x = track_length_m, y = marble_name)) +
+  geom_density_ridges(alpha = 0.5)
+
+ggplot(marbles, aes(x = track_length_m, y = team_name)) +
+  geom_density_ridges(alpha = 0.5)
+
+marbles |> 
+  filter(track_length_m > 12.5)
+```
+```{r}
+marbles |> 
+  group_by(marble_name) |> 
+  summarise(race_count = n_distinct(race)) |> 
+  arrange(desc(race_count))
+```
+
+```{r}
+marbles |> 
+  filter(race_type == "R") |> 
+  distinct(race_number)
+```
+
+```{r}
+
+marbles |> 
+  group_by(race_number)
+
+```
+
+```{r}
+winners <- marbles_2 |> 
+  filter(race_type == "R") |> 
+  group_by(race_number) |> 
+  slice_min(time_s, n = 1) |> 
+  mutate(time_msm = seconds_to_period(time_s)) |>
+  select(race_number, marble_name, team_name, time_s, time_msm)
+```
+
+```{r}
+
+ggplot(winners, aes(x = reorder(marble_name, time_s), y = time_s, fill = team_name)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  geom_text(aes(label = paste(marble_name, " (", team_name, ")", sep = "")), 
+            vjust = 0.3, hjust = -0.2, size = 4, color = "black") + # Marble and team name
+  geom_text(aes(label = sprintf("%02d:%05.2f", floor(time_s / 60), time_s %% 60)),
+            vjust = 1.5, hjust = -0.2, size = 4, color = "red") + 
+  coord_flip() +
+  scale_fill_brewer(palette = "Set3") +
+  theme_void()
+
+```
+```{r}
+
+colors <- list("", "#", "#", "#", "#", "#")
+
+colors <- c("Team Galactic" = "#c2a855", # Blue
+                    "Green Ducks" = "#a6594f",    
+                    "Balls of Chaos" = "#a25e66", 
+                    "O'rangers" = "#527497",      
+                    "Snowballs" = "#3c4868",      
+                    "Hazers" = "#497c5d",         
+                    "Savage Speeders" = "#445a55")
+
+ggplot(winners, aes(x = factor(race_number, levels = rev(unique(race_number))), y = time_s, fill = team_name)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  geom_text(aes(label = paste(marble_name, " (", team_name, ")", sep = "")), 
+            vjust = 0.3, hjust = 2, size = 4, color = "black") + 
+  geom_text(aes(label = sprintf("%02d:%05.2f", floor(time_s / 60), time_s %% 60)),
+            vjust = 0, hjust = -0.2, size = 4, color = "red") + 
+  coord_flip() +
+  scale_y_continuous(limits = c(0, 520)) +
+  scale_fill_brewer(palette = "Pastel2") +
+  labs(title = "Marbula One Winners 2020",
+       subtitle = "Results of the 8 races with marble name, team name (in parenthesis)\n and winning time (in red)\n",
+       y = "Winning time (seconds)",
+       x = "Race Number\n"
+       ) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+        plot.subtitle = element_text(hjust = 0.5),
+        legend.position = "none",
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        panel.grid = element_blank())
+
+
+ggsave("marbula_one_winners.jpg")
+```
+
