@@ -1,0 +1,525 @@
+---
+title: "Olympic Athletes and Medals"
+author: "Austin Mangelson"
+format: 
+  html:
+    code-fold: true
+    code-tools: true
+    embed-resources: true
+    toc: true
+editor: visual
+execute: 
+  warning: FALSE
+  message: FALSE
+---
+
+```{r setup, echo=FALSE, results='hide'}
+library(tidyverse)
+library(broom)
+library(forecast)
+library(knitr)
+
+theme_set(theme_bw())
+
+olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-08-06/olympics.csv') 
+
+olympics <- olympics |> 
+  mutate(team = sub("-.*", "", team))
+```
+
+## Athletes
+
+**Who are the youngest and oldest competitors?**
+
+```{r}
+olympics |> 
+  arrange(age) |> 
+  slice_head(n = 1) |> 
+  select(name, age, height, weight, team, games, sport, event, medal) 
+
+olympics |> 
+  arrange(desc(age)) |> 
+  slice_head(n = 1) |> 
+  select(name, age, height, weight, team, games, sport, event, medal)
+
+```
+
+The youngest Olympic competitor was 10 year old Dimitrios Loundras from Greece. He competed in the 1896 Summer Olympics for the Ethnikos Gymnastikos Syllogos and won Bronze in gymnastics Men's Parallel Bars.
+
+The oldest competitor was John Quincy Adams Ward, who competed in the Art Competitions Mixed Sculpturing, Statues event in the 1928 Summer Olympic games in Amsterdam. Competing for the United States, John was 97 years old.
+
+<br>
+
+**Who are the tallest and shortest competitors?**
+
+```{r}
+olympics |> 
+  arrange(height) |> 
+  slice_head(n = 1) 
+
+olympics |> 
+  arrange(desc(height)) |> 
+  slice_head(n = 1) 
+```
+
+The shortest competitor was Rosario Briones of Mexico, competing in the 1968 Summer Gymnastics Women's Individual All-Around. She stood at 127cm (4ft, 2in).
+
+The tallest was Yao Ming of China, competing in to 2000 Summer Men's Basketball event. He was 226cm (7ft, 5in).
+
+<br>
+
+**Which events / sports have the most competitors?**
+
+```{r}
+
+olympics |> 
+  distinct(id, .keep_all = TRUE) |> 
+  group_by(sport) |> 
+  summarise(count = n()) |> 
+  arrange(desc(count)) 
+```
+
+Athletics (track and field) has had the most competitors, at 21,980 individual competitors (16% of all Olympic athletes).
+
+The Olympic sport with the least number of competitors? Aeronautics, with only one competitor, Switzerland's Hermann Schreiber. He won gold.
+
+<br>
+
+**Which countries have sent the most athletes to the Olympics?**
+
+```{r}
+
+olympics |> 
+  distinct(id, .keep_all = TRUE) |> 
+  group_by(team) |> 
+  summarise(count = n()) |> 
+  arrange(desc(count)) 
+```
+
+The United States has sent the most competitors to the Olympic games, with 9,051 unique competitors (only 6.7% of all competitors).
+
+<br>
+
+## Medals
+
+**Are there certain sports where younger or older athletes tend to win more medals? What about the height or weight of the athlete?**
+
+```{r}
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sport) |> 
+  summarise(
+    avg_age = mean(age, na.rm = TRUE),
+    count = n()
+  ) |> 
+  arrange(avg_age) |> 
+  na.omit() |> 
+  ggplot(aes(x = reorder(sport, avg_age), y = avg_age)) +
+  geom_point(color = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Average Age of Medal-Winning Athletes by Sport",
+    x = "Sport",
+    y = "Average Age"
+  ) +
+  theme(axis.text.y = element_text(size = 8))
+
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sport) |> 
+  summarise(
+    avg_height = mean(height, na.rm = TRUE),
+    count = n()
+  ) |> 
+  arrange(avg_height) |> 
+  na.omit() |> 
+  ggplot(aes(x = reorder(sport, avg_height), y = avg_height)) +
+  geom_point(color = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Average Height of Medal-Winning Athletes by Sport",
+    x = "Sport",
+    y = "Average Age"
+  ) +
+  theme(axis.text.y = element_text(size = 8))
+
+
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sport) |> 
+  summarise(
+    avg_weight = mean(weight, na.rm = TRUE),
+    count = n()
+  ) |> 
+  arrange(avg_weight) |> 
+  na.omit() |> 
+  ggplot(aes(x = reorder(sport, avg_weight), y = avg_weight)) +
+  geom_point(color = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Average Weight of Medal-Winning Athletes by Sport",
+    x = "Sport",
+    y = "Average Age"
+  ) +
+  theme(axis.text.y = element_text(size = 8))
+
+```
+
+<br>
+
+**Which athlete has won the most gold medals? Silver? Bronze? Total medals?**
+
+```{r}
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(name) |> 
+  summarise(gold = sum(medal == "Gold", na.rm = TRUE),
+            silver = sum(medal == "Silver", na.rm = TRUE),
+            bronze = sum(medal == "Bronze", na.rm = TRUE),
+            total = gold + silver + bronze
+  ) |> 
+  arrange(desc(total)) 
+```
+
+| Achievement         | Athlete Name                    | Country       | Sport      |
+|-----------------|---------------------|-----------------|-----------------|
+| Most Gold Medals    | Michael Fred Phelps, II         | United States | Swimming   |
+| Most Silver Medals  | Aleksandr Nikolayevich Dityatin | Soviet Union  | Gymnastics |
+| Most Bronze Medals  | Aleksey Yuryevich Nemov         | Russia        | Gymnastics |
+| Most Overall Medals | Michael Fred Phelps, II         | United States | Swimming   |
+
+<br>
+
+**Which country/team has won the most medals overall?**
+
+```{r}
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(team) |> 
+  summarise(gold = sum(medal == "Gold", na.rm = TRUE),
+            silver = sum(medal == "Silver", na.rm = TRUE),
+            bronze = sum(medal == "Bronze", na.rm = TRUE),
+            total = gold + silver + bronze
+  ) |> 
+  arrange(desc(total)) 
+```
+
+The United States has the most overall medals, as well as the most gold, silver, and bronze medals individually.
+
+<br>
+
+**How does the number of medals won differ by season (Summer vs. Winter)?**
+
+```{r}
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(season) |> 
+  summarise(gold = sum(medal == "Gold", na.rm = TRUE),
+            silver = sum(medal == "Silver", na.rm = TRUE),
+            bronze = sum(medal == "Bronze", na.rm = TRUE),
+            total = gold + silver + bronze
+  ) |> 
+  arrange(desc(total)) 
+```
+
+<br>
+
+**Which sport has the highest number of medals awarded?**
+
+```{r}
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sport) |> 
+  summarise(gold = sum(medal == "Gold", na.rm = TRUE),
+            silver = sum(medal == "Silver", na.rm = TRUE),
+            bronze = sum(medal == "Bronze", na.rm = TRUE),
+            total = gold + silver + bronze
+  ) |> 
+  arrange(desc(total)) 
+```
+
+<br>
+
+## Performance Over Time
+
+**How has the distribution of medals changed over time?**
+
+```{r}
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(year) |> 
+  summarise(total_medals = n()) |> 
+  arrange(desc(total_medals)) |> 
+  ggplot(aes(x = year, y = total_medals)) +
+  geom_bar(stat = "identity", position = "stack", color = "white", fill = "steelblue") +
+  labs(
+    title = "Distribution of Olympic Medals Over Time",
+    x = "Year",
+    y = "Total Medals"
+  ) +
+  theme(legend.position = "none") +
+  scale_x_continuous(breaks = seq(1890, 2016, by = 10))
+
+#grouped by decade
+olympics |> 
+  filter(!is.na(medal)) |> 
+    mutate(decade = (year %/% 10) * 10) |> 
+  group_by(decade) |> 
+  summarise(total_medals = n()) |> 
+  arrange(decade, desc(total_medals)) |> 
+  ggplot(aes(x = factor(decade), y = total_medals)) +
+  geom_bar(stat = "identity", position = "stack", color = "white", fill = "steelblue") +
+  labs(
+    title = "Distribution of Olympic Medals by Decade",
+    x = "Decade",
+    y = "Total Medals"
+  ) +
+  theme(legend.position = "none")
+```
+
+<br>
+
+**Are there trends in certain countries dominating specific sports over time?**
+
+```{r}
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(team, sport) |> 
+  summarise(total_medals = n()) |> 
+  arrange(sport, desc(total_medals)) |> 
+  ungroup() |> 
+  group_by(sport) |> 
+  mutate(total_sport_medals = sum(total_medals)) |> 
+  mutate(percentage_top = total_medals / total_sport_medals * 100) |> 
+  filter(percentage_top >= 25,
+         total_medals >= 10) 
+
+```
+
+The table below lists which countries have dominated specific sporting events in the Olympics (*along with the number of medals it's won*). A country is considered "dominant" if it has:
+
+1.  won at least 10 medals in that sport
+2.  won more than 25% of the total medals in that sport
+
+| Sport                     | Dominant Country        | Second Dominant (*if applicable*) |
+|-----------------------|---------------------|----------------------------|
+| Alpine Skiing             | Austria (*114*)         |                                   |
+| Alpinism                  | Great Britain (*12*)    |                                   |
+| Athletics                 | United States (*1,071*) |                                   |
+| Badminton                 | China (*64*)            |                                   |
+| Baseball                  | Cuba (*112*)            |                                   |
+| Basketball                | United States (*341*)   |                                   |
+| Beach Volleyball          | Brazil (*26*)           | United States (*20*)              |
+| Cricket                   | Great Britain (*12*)    | France (*12*)                     |
+| Curling                   | Canada (*48*)           |                                   |
+| Diving                    | United States (*140*)   |                                   |
+| Luge                      | Germany (*47*)          |                                   |
+| Racquets                  | Great Britain (*10*)    |                                   |
+| Rhythmic Gymnastics       | Russia (*45*)           |                                   |
+| Short Track Speed Skating | South Korea (*73*)      |                                   |
+| Snowboarding              | United States (*24*)    |                                   |
+| Softball                  | Australia (*60*)        | United States (*60*)              |
+| Swimming                  | United States (*1,066*) |                                   |
+| Synchronized Swimming     | Russia (*54*)           |                                   |
+| Table Tennis              | China (*81*)            |                                   |
+| Trampolining              | China (*11*)            |                                   |
+
+<br>
+
+**How has the age of all Olympians changed over time?**
+
+```{r}
+
+age <- olympics |> 
+  group_by(year) |> 
+  summarise(avg_age = mean(age, na.rm = TRUE))
+
+ggplot(age, aes(x = year, y = avg_age)) +
+  geom_line() +
+  labs(
+    title = "Olympic Competitors",
+    x = "Year",
+    y = "Average Age"
+  ) +
+  scale_x_continuous(breaks = seq(1890, 2020, by = 10)) +
+  scale_y_continuous(breaks = seq(20, 33, by = 1))
+```
+
+**Has the average age of medal-winning athletes changed over the years?**
+
+```{r}
+
+age_winners <- olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(year) |> 
+  summarise(avg_age = mean(age, na.rm = TRUE))
+
+ggplot(age_winners, aes(x = year, y = avg_age)) +
+  geom_line() +
+   labs(
+    title = "Olympic Medalists",
+    x = "Year",
+    y = "Average Age"
+  ) +  
+  scale_x_continuous(breaks = seq(1890, 2020, by = 10)) +
+  scale_y_continuous(breaks = seq(20, 30, by = 1))
+
+```
+
+## Gender Analysis
+
+**What percentage of Olympic competitors have been male vs female?**
+
+```{r}
+olympics |> 
+  distinct(id, .keep_all = TRUE) |> 
+  group_by(sex) |> 
+  summarise(count = n()) 
+```
+
+With a total of 135,571 unique Olympic competitors, 33,981 (25%) have been female and 101,590 (75%) have been male.
+
+<br>
+
+**How does the medal distribution compare between male and female athletes?**
+
+```{r}
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sex, medal) |> 
+  count() |> 
+  ungroup() |> 
+  ggplot(aes(x = medal, y = n, fill = sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("lightpink", "steelblue")) +
+  labs(
+    title = "Medal Distribution by Gender",
+    x = "Medal Type",
+    y = "Count"
+  )
+
+#----------------------------------------
+
+total_medalists_per_gender <- olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sex) |> 
+  count(name = "total_medalists")
+
+total_competitors_per_gender <- olympics |> 
+  group_by(sex) |> 
+  count(name = "total_competitors")
+
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sex, medal) |> 
+  count(name = "medal_count") |> 
+  ungroup() |> 
+  left_join(total_competitors_per_gender, by = "sex") |> 
+  mutate(percentage = (medal_count / total_competitors) * 100) |> 
+  ggplot(aes(x = medal, y = percentage, fill = sex)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("lightpink", "steelblue")) +
+  labs(
+    title = "Medal Distribution by Gender",
+    subtitle = "As a percentage of gender competitors",
+    x = "Medal Type",
+    y = "Percentage of medalists per gender"
+  )
+```
+
+<br>
+
+**Are there sports where one gender tends to dominate in terms of medal count?**
+
+```{r}
+
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sex, sport) |> 
+  summarise(total_medals = n()) |> 
+  arrange(sex, desc(total_medals)) |> 
+  ungroup() |> 
+  group_by(sport) |> 
+  mutate(total_sport_medals = sum(total_medals)) |> 
+  mutate(percentage_top = total_medals / total_sport_medals * 100) |> 
+  filter(percentage_top > 50,
+         total_medals >= 10) 
+```
+
+There are only 3 Olympic sports in which women hold a dominant number of medals (\>50%): synchronized swimming, softball, and rhythmic gymnastics, all of which are exclusively female sporting events.
+
+<br>
+
+## Predictive Models
+
+**Athletics Medal Prediction Model**: Predict whether an athlete will win a medal based on age, height, weight, team, and sport.
+
+```{r}
+athletics <- olympics |> 
+  filter(sport == "Athletics") |> 
+  mutate(medal_binary = ifelse(!is.na(medal), 1, 0))
+
+cor(athletics$medal_binary, athletics$age, use = "complete.obs")
+cor(athletics$medal_binary, athletics$height, use = "complete.obs")
+cor(athletics$medal_binary, athletics$weight, use = "complete.obs")
+```
+
+```{r}
+athletics <- olympics |> 
+  filter(sport == "Athletics") |> 
+  mutate(medal_binary = ifelse(!is.na(medal), 1, 0))
+
+model_athletics <- lm(medal_binary ~ age + height + weight + team, data = athletics)
+
+tidy(model_athletics, conf.int = TRUE) |> 
+  filter(!str_starts(term, "team"))
+
+glance(model_athletics)
+```
+
+**Country Medal Count Forecasting**: Predict the total number of medals a country will win in a future Olympics.
+
+```{r regression model}
+
+country_medals <- olympics |> 
+  filter(!is.na(medal)) |> 
+  mutate(team = case_when(
+    team %in% c("United States Golf Association-3", "United States Virgin Islands", "United States-1", "United States-2", "United States-3", "United States-4") ~ "United States",
+    TRUE ~ team
+  )) |> 
+  group_by(team, year) |> 
+  summarise(total_medals = n(),
+            .groups = "drop")
+
+# Aggregate additional features by country and year
+country_features <- olympics |> 
+  group_by(team, year) |> 
+  summarise(
+    num_athletes = n(),
+    avg_age = mean(age, na.rm = TRUE),
+    avg_height = mean(height, na.rm = TRUE),
+    avg_weight = mean(weight, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Merge features with medal counts
+country_data <- country_medals |> 
+  left_join(country_features, by = c("team", "year"))
+
+# Fit a linear regression model
+model_medal_count_forecast <- lm(total_medals ~ num_athletes, data = country_data)
+
+# Summary of the model
+summary(model_medal_count_forecast)
+
+```
+
+```{r}
+# Predict medals for a future Olympics (e.g., 2028)
+new_data <- data.frame(
+  num_athletes = c(592)
+)
+
+predicted_medals <- predict(model_medal_count_forecast, newdata = new_data)
+predicted_medals
+```
