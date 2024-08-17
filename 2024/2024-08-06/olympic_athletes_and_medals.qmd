@@ -19,6 +19,11 @@ library(broom)
 library(forecast)
 library(knitr)
 library(DT)
+library(leaflet)
+library(rnaturalearth)
+library(sf)
+library(scales)
+library(grid)
 
 theme_set(theme_bw())
 
@@ -27,6 +32,10 @@ olympics <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/t
 olympics <- olympics |> 
   mutate(team = sub("-.*", "", team))
 ```
+
+With the Summer 2024 Paris Olympics just wrapping up, I thought it'd be interesting to explore some data around modern Olympic athletes and medals. My wife and I love watching the Olympics together each season, and I thought I could learn something new by diving into it a bit more!
+
+*\*All data comes from the [RGriffin Kaggle dataset: 120 years of Olympic history: athletes and results](https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results/). It includes historical data of all the games from Athens 1896 to Rio 2016.*
 
 ## Athletes
 
@@ -61,24 +70,11 @@ olympics |>
 
 <br>
 
-##### **Which events / sports have the most competitors?**
+The oldest competitor was a sculptor?? Turns out that in the modern Olympics' early days, artists battled it out for medals too! From 1912 to 1948, art competitions (*including architecture, literature, music, painting, and sculpting*) were included in the competitions because the founder of the modern Olympics, Pierre de Coubertin, thought a "*true Olympian*" was "*someone who was not only athletic, but skilled in music and literature*".
 
-```{r}
+Eventually the art competitions were dropped from the Olympics because all Olympians were required to be amateurs, but professional artwork was consistently submitted and it was too difficult to determine the amateur status of the artists.
 
-most_competitors_by_sport <- olympics |> 
-  distinct(id, .keep_all = TRUE) |> 
-  group_by(sport) |> 
-  summarise(count = n()) |> 
-  arrange(desc(count)) 
-
-datatable(most_competitors_by_sport)
-```
-
-<br>
-
-Athletics (track and field) has had the most distinct competitors, at 21,980 individual competitors (16% of all Olympic athletes).
-
-The Olympic sport with the least number of competitors? Aeronautics, with only one competitor, Switzerland's Hermann Schreiber. He won gold.
+*(Side note: It wasn't just art competitions that only allowed amateurs. Officially, only non-professional athletes were allowed to compete in the Olympics until 1968. Read more about that [here](https://globalsportmatters.com/1968-mexico-city-olympics/2018/10/15/professional-athletes-1968-olympic-games/).)*
 
 <br>
 
@@ -86,24 +82,248 @@ The Olympic sport with the least number of competitors? Aeronautics, with only o
 
 ```{r}
 
+world <- ne_countries() |> 
+  select(name_long, geometry) |> 
+  mutate(name_long = case_when(
+    name_long == "United Kingdom" ~ "Great Britain",
+    name_long == "Russian Federation" ~ "Russia",
+    name_long == "Republic of Korea" ~ "South Korea",
+    TRUE ~ name_long
+  ))
+
 most_competitors_by_country <- olympics |> 
   distinct(id, .keep_all = TRUE) |> 
   group_by(team) |> 
   summarise(count = n()) |> 
-  arrange(desc(count)) 
+  arrange(desc(count)) |> 
+  rename(name_long = team) |> 
+  mutate(name_long = case_when(
+    name_long == "East Germany" ~ "Germany",
+    name_long == "West Germany" ~ "Germany",
+    TRUE ~ name_long
+  ),
+  percent_total = round((count / sum(count)), 3)) |> 
+  left_join(world, by = "name_long")
 
-datatable(most_competitors_by_country)
+most_competitors_by_country <- st_as_sf(most_competitors_by_country, crs = 4326)
+
+#mapping
+pal <- colorNumeric(
+  palette = "Reds", 
+  domain = most_competitors_by_country$count)
+
+leaflet() |> 
+  addProviderTiles("Esri.WorldTopoMap", options = providerTileOptions(noWrap = TRUE)) |> 
+  addPolygons(data = most_competitors_by_country,
+              fillColor = ~pal(most_competitors_by_country$count),
+              fillOpacity = 0.7,
+              weight = 0.2,
+              smoothFactor = 0.2,
+              popup = paste("<b>Country:</b>", most_competitors_by_country$name_long, "<br>",
+                            "<b># of Athletes:</b>", comma(most_competitors_by_country$count), "<br>",
+                            "<b>% of total Olympians:</b>", percent(most_competitors_by_country$percent_total)
+              )) |> 
+  addLegend(pal = pal,
+            values = most_competitors_by_country$count,
+            position = "bottomright",
+            title = "# of Athletes")
+
 ```
 
 <br>
 
-The United States has sent the most competitors to the Olympic games, with 9,051 distinct competitors (6.7% of all competitors).
+The United States has sent the most competitors to the Olympic games, with 9,400 distinct competitors (6.9% of all competitors).
+
+<br>
+
+##### **Which athlete has won the most gold medals? Silver? Bronze? Total medals?**
+
+```{r}
+decorated_olympians <- olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(name) |> 
+  summarise(gold = sum(medal == "Gold", na.rm = TRUE),
+            silver = sum(medal == "Silver", na.rm = TRUE),
+            bronze = sum(medal == "Bronze", na.rm = TRUE),
+            total = gold + silver + bronze
+  ) |> 
+  arrange(desc(total)) 
+
+datatable(decorated_olympians, class = "compact")
+```
+
+## Sports
+
+##### **Which events / sports have the most competitors?**
+
+```{r}
+most_competitors_by_sport <- olympics |> 
+  distinct(id, .keep_all = TRUE) |> 
+  group_by(sport) |> 
+  summarise(count = n()) |> 
+  arrange(desc(count)) |> 
+  mutate(percent = percent(round((count / sum(count)), 3)))
+
+datatable(most_competitors_by_sport, class = "compact")
+```
+
+<br>
+
+Athletics (track and field) has had the most distinct competitors, at 21,980 individual competitors (over 16% of all Olympic athletes).
+
+The Olympic sport with the least number of competitors? Aeronautics, with only one competitor, Switzerland's Hermann Schreiber. He won gold.
+
+<br>
+
+##### **Are there certain sports where younger or older athletes tend to win more medals? What about the height or weight of the athlete?**
+
+AGE
+
+```{r, fig.height=10, fig.width=10}
+
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sport) |> 
+  summarise(
+    avg_age = mean(age, na.rm = TRUE),
+    count = n()
+  ) |> 
+  arrange(avg_age) |> 
+  na.omit() |> 
+  ggplot(aes(x = reorder(sport, avg_age), y = avg_age)) +
+  geom_point(color = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Average Age of Medal-Winning Athletes by Sport",
+    x = "Sport",
+    y = "Average Age"
+  ) +
+  theme(axis.text.y = element_text(size = 8))
+```
+
+HEIGHT
+
+```{r, fig.height=10, fig.width=10}
+
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sport) |> 
+  summarise(
+    avg_height = mean(height, na.rm = TRUE),
+    count = n()
+  ) |> 
+  arrange(avg_height) |> 
+  na.omit() |> 
+  ggplot(aes(x = reorder(sport, avg_height), y = avg_height)) +
+  geom_point(color = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Average Height of Medal-Winning Athletes by Sport",
+    x = "Sport",
+    y = "Average Height (cm)"
+  ) +
+  theme(axis.text.y = element_text(size = 8))
+```
+
+WEIGHT
+
+```{r, fig.height=10, fig.width=10}
+
+olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sport) |> 
+  summarise(
+    avg_weight = mean(weight, na.rm = TRUE),
+    count = n()
+  ) |> 
+  arrange(avg_weight) |> 
+  na.omit() |> 
+  ggplot(aes(x = reorder(sport, avg_weight), y = avg_weight)) +
+  geom_point(color = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Average Weight of Medal-Winning Athletes by Sport",
+    x = "Sport",
+    y = "Average Weight (kg)"
+  ) +
+  theme(axis.text.y = element_text(size = 8))
+```
+
+<br>
+
+##### **Which sport has the highest number of medals awarded?**
+
+```{r}
+sport_medals <- olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(sport) |> 
+  summarise(gold = sum(medal == "Gold", na.rm = TRUE),
+            silver = sum(medal == "Silver", na.rm = TRUE),
+            bronze = sum(medal == "Bronze", na.rm = TRUE),
+            total = gold + silver + bronze
+  ) |> 
+  arrange(desc(total)) 
+
+datatable(sport_medals, class = "compact")
+```
+
+<br>
+
+The most medals have been awarded to Athletics, which makes sense because Athletics has the highest number of competitors.
+
+<br>
+
+##### **Are there certain Olympic sports that are dominated by certain countries?**
+
+```{r results='hide'}
+domination <- olympics |> 
+  filter(!is.na(medal)) |> 
+  group_by(team, sport) |> 
+  summarise(total_medals = n()) |> 
+  arrange(sport, desc(total_medals)) |> 
+  ungroup() |> 
+  group_by(sport) |> 
+  mutate(total_sport_medals = sum(total_medals)) |> 
+  mutate(percentage_top = total_medals / total_sport_medals * 100) |> 
+  filter(percentage_top >= 25,
+         total_medals >= 10) 
+```
+
+The table below lists which countries have dominated specific sporting events in the Olympics (*along with the number of medals it's won*). A country is considered "dominant" if it has:
+
+1.  won at least 10 medals in that sport
+2.  won more than 25% of the total medals in that sport
+
+<br>
+
+| Sport                     | Dominant Country        | Second Dominant (*if applicable*) |
+|-----------------------|---------------------|----------------------------|
+| Alpine Skiing             | Austria (*114*)         |                                   |
+| Alpinism                  | Great Britain (*12*)    |                                   |
+| Athletics                 | United States (*1,071*) |                                   |
+| Badminton                 | China (*64*)            |                                   |
+| Baseball                  | Cuba (*112*)            |                                   |
+| Basketball                | United States (*341*)   |                                   |
+| Beach Volleyball          | Brazil (*26*)           | United States (*20*)              |
+| Cricket                   | Great Britain (*12*)    | France (*12*)                     |
+| Curling                   | Canada (*48*)           |                                   |
+| Diving                    | United States (*140*)   |                                   |
+| Luge                      | Germany (*47*)          |                                   |
+| Racquets                  | Great Britain (*10*)    |                                   |
+| Rhythmic Gymnastics       | Russia (*45*)           |                                   |
+| Short Track Speed Skating | South Korea (*73*)      |                                   |
+| Snowboarding              | United States (*24*)    |                                   |
+| Softball                  | Australia (*60*)        | United States (*60*)              |
+| Swimming                  | United States (*1,066*) |                                   |
+| Synchronized Swimming     | Russia (*54*)           |                                   |
+| Table Tennis              | China (*81*)            |                                   |
+| Trampolining              | China (*11*)            |                                   |
 
 <br>
 
 ## Gender Analysis
 
-##### **What percentage of Olympic competitors have been male vs female?**
+##### **What percentage of Olympic competitors (and winners) have been male vs female?**
 
 ```{r}
 
@@ -111,9 +331,13 @@ olympics |>
   distinct(id, .keep_all = TRUE) |>   
   group_by(sex) |>    
   summarise(count = n()) |> 
+  mutate(percent = percent(count / sum(count))) |> 
   ggplot(aes(x = sex, y = count, fill = sex)) +
   geom_col() +
-  scale_fill_manual(values = c("lightpink", "steelblue")) +
+  geom_text(aes(label = percent),
+            vjust = 5,
+            size = 4) +  
+  scale_fill_manual(values = c("lightpink", "lightblue")) +
   labs(
     title = "Gender Distribution in Olympic History",
     x = "",
@@ -123,54 +347,29 @@ olympics |>
 
 With a total of 135,571 unique Olympic competitors, 33,981 (25%) have been female and 101,590 (75%) have been male.
 
-<br>
-
-##### **How does the medal distribution compare between male and female athletes?**
+This is great and interesting, but how has this changed over time? Have more females been competing in the last couple of decades, or has this always been the gender distribution?
 
 ```{r}
 
 olympics |> 
-  filter(!is.na(medal)) |> 
-  group_by(sex, medal) |> 
-  count() |> 
-  ungroup() |> 
-  ggplot(aes(x = medal, y = n, fill = sex)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_fill_manual(values = c("lightpink", "steelblue")) +
+  mutate(decade = (year %/% 10) * 10) |>
+  group_by(decade, sex) |> 
+  summarize(count = n()) |> 
+  ggplot(aes(x = decade, y = count, fill = sex)) +
+  geom_col(position = "fill") +
+  scale_fill_manual(values = c("lightpink", "lightblue")) +
   labs(
-    title = "Medal Distribution by Gender",
-    x = "Medal Type",
-    y = "Count"
-  )
-
-#----------------------------------------
-
-total_medalists_per_gender <- olympics |> 
-  filter(!is.na(medal)) |> 
-  group_by(sex) |> 
-  count(name = "total_medalists")
-
-total_competitors_per_gender <- olympics |> 
-  group_by(sex) |> 
-  count(name = "total_competitors")
-
-olympics |> 
-  filter(!is.na(medal)) |> 
-  group_by(sex, medal) |> 
-  count(name = "medal_count") |> 
-  ungroup() |> 
-  left_join(total_competitors_per_gender, by = "sex") |> 
-  mutate(percentage = (medal_count / total_competitors) * 100) |> 
-  ggplot(aes(x = medal, y = percentage, fill = sex)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_fill_manual(values = c("lightpink", "steelblue")) +
-  labs(
-    title = "Medal Distribution by Gender",
-    subtitle = "As a percentage of gender competitors",
-    x = "Medal Type",
-    y = "Percentage of medalists per gender"
-  )
+    title = "Olympic Gender Distribution Over Time",
+    x = "Decade",
+    y = "Percent", 
+    fill = "Gender"
+  ) +
+  scale_y_continuous(labels = percent_format())
 ```
+
+<br>
+
+The percentage of Olympic athletes that are female has steadily been increasing since the early 1900's. Although not shown in this graph, the Paris 2024 Olympics are the first in history to reach full gender parity: of the 10,500 athletes competing, 50% are men and 50% are women.
 
 <br>
 
@@ -202,100 +401,63 @@ All 3 of these are exclusively female sporting events.
 
 ## Medals
 
-##### **Are there certain sports where younger or older athletes tend to win more medals? What about the height or weight of the athlete?**
-
-AGE
+##### **Which country/team has won the most medals overall?**
 
 ```{r}
-olympics |> 
+world <- ne_countries() |> 
+  select(name_long, geometry) |> 
+  mutate(name_long = case_when(
+    name_long == "United Kingdom" ~ "Great Britain",
+    name_long == "Russian Federation" ~ "Russia",
+    name_long == "Republic of Korea" ~ "South Korea",
+    TRUE ~ name_long
+  ))
+
+decorated_countries_map <- olympics |> 
   filter(!is.na(medal)) |> 
-  group_by(sport) |> 
-  summarise(
-    avg_age = mean(age, na.rm = TRUE),
-    count = n()
-  ) |> 
-  arrange(avg_age) |> 
-  na.omit() |> 
-  ggplot(aes(x = reorder(sport, avg_age), y = avg_age)) +
-  geom_point(color = "steelblue") +
-  coord_flip() +
-  labs(
-    title = "Average Age of Medal-Winning Athletes by Sport",
-    x = "Sport",
-    y = "Average Age"
-  ) +
-  theme(axis.text.y = element_text(size = 8))
-```
-
-HEIGHT
-
-```{r}
-
-olympics |> 
-  filter(!is.na(medal)) |> 
-  group_by(sport) |> 
-  summarise(
-    avg_height = mean(height, na.rm = TRUE),
-    count = n()
-  ) |> 
-  arrange(avg_height) |> 
-  na.omit() |> 
-  ggplot(aes(x = reorder(sport, avg_height), y = avg_height)) +
-  geom_point(color = "steelblue") +
-  coord_flip() +
-  labs(
-    title = "Average Height of Medal-Winning Athletes by Sport",
-    x = "Sport",
-    y = "Average Height (cm)"
-  ) +
-  theme(axis.text.y = element_text(size = 8))
-```
-
-WEIGHT
-
-```{r}
-
-olympics |> 
-  filter(!is.na(medal)) |> 
-  group_by(sport) |> 
-  summarise(
-    avg_weight = mean(weight, na.rm = TRUE),
-    count = n()
-  ) |> 
-  arrange(avg_weight) |> 
-  na.omit() |> 
-  ggplot(aes(x = reorder(sport, avg_weight), y = avg_weight)) +
-  geom_point(color = "steelblue") +
-  coord_flip() +
-  labs(
-    title = "Average Weight of Medal-Winning Athletes by Sport",
-    x = "Sport",
-    y = "Average Weight (kg)"
-  ) +
-  theme(axis.text.y = element_text(size = 8))
-```
-
-<br>
-
-##### **Which athlete has won the most gold medals? Silver? Bronze? Total medals?**
-
-```{r}
-decorated_olympians <- olympics |> 
-  filter(!is.na(medal)) |> 
-  group_by(name) |> 
+  group_by(team) |> 
   summarise(gold = sum(medal == "Gold", na.rm = TRUE),
             silver = sum(medal == "Silver", na.rm = TRUE),
             bronze = sum(medal == "Bronze", na.rm = TRUE),
             total = gold + silver + bronze
   ) |> 
-  arrange(desc(total)) 
+  mutate(percent_total = round((total / sum(total)), 3)) |> 
+  rename(name_long = "team") |> 
+  left_join(world, by = "name_long")
 
-datatable(decorated_olympians)
+decorated_countries_map <- st_as_sf(decorated_countries_map, crs = 4326)
+
+#mapping
+pal <- colorNumeric(
+  palette = "Reds", 
+  domain = decorated_countries_map$total)
+
+leaflet() |> 
+  addProviderTiles("Esri.WorldTopoMap", options = providerTileOptions(noWrap = TRUE)) |> 
+  addPolygons(data = decorated_countries_map,
+              fillColor = ~pal(decorated_countries_map$total),
+              fillOpacity = 0.7,
+              weight = 0.2,
+              smoothFactor = 0.2,
+              popup = paste("<b>Country:</b>", decorated_countries_map$name_long, "<br>",
+                            "<b>Total Medals:</b>", comma(decorated_countries_map$total), "<br>",
+                            "<b>% of all Olympic medals:</b>", percent(decorated_countries_map$percent_total), "<br>",
+                            "<b>Gold:</b>", comma(decorated_countries_map$gold), "<br>",
+                            "<b>Silver:</b>", comma(decorated_countries_map$silver), "<br>",
+                            "<b>Bronze:</b>", comma(decorated_countries_map$bronze), "<br>"
+                            )
+              ) |> 
+  addLegend(pal = pal,
+            values = decorated_countries_map$total,
+            position = "bottomright",
+            title = "Total Medals Won")
 ```
 
 <br>
 
-##### **Which country/team has won the most medals overall?**
+In all modern Olympic history, the United States has won the most medals overall. As it turns out, they've also won the most gold, silver, and bronze medals individually as well.
+
+Remember how the US competitors make up only 6.9% of all Olympic competitors? That means those 6.9% have won 13.5% of all the Olympic medals ever awarded. Pretty incredible!
 
 ```{r}
 decorated_countries <- olympics |> 
@@ -307,12 +469,9 @@ decorated_countries <- olympics |>
             total = gold + silver + bronze
   ) |> 
   arrange(desc(total)) 
-datatable(decorated_countries)
+
+datatable(decorated_countries, class = "compact")
 ```
-
-<br>
-
-The United States has the most overall medals, as well as the most gold, silver, and bronze medals individually.
 
 <br>
 
@@ -324,32 +483,19 @@ olympics |>
   group_by(season, medal) |> 
   count() |> 
   ggplot(aes(x = season, y = n, fill = medal)) +
-  geom_col(position = "dodge") +
+  geom_col(position = "dodge", width = 0.9) +
   scale_fill_manual(values = c("#FFD700", "#C0C0C0", "#CD7F32")) +
+  geom_text(aes(label = comma(n)),
+            position = position_dodge(width = 0.9),
+            vjust = 3,
+            size = 4
+            ) +
   labs(
     title = "Number of Medals Earned by Season",
     x = "Season",
     y = "Number of Medals",
     fill = "Medal Type"
   )
-```
-
-<br>
-
-##### **Which sport has the highest number of medals awarded?**
-
-```{r}
-sport_medals <- olympics |> 
-  filter(!is.na(medal)) |> 
-  group_by(sport) |> 
-  summarise(gold = sum(medal == "Gold", na.rm = TRUE),
-            silver = sum(medal == "Silver", na.rm = TRUE),
-            bronze = sum(medal == "Bronze", na.rm = TRUE),
-            total = gold + silver + bronze
-  ) |> 
-  arrange(desc(total)) 
-
-datatable(sport_medals)
 ```
 
 <br>
@@ -367,65 +513,27 @@ olympics |>
   group_by(decade) |> 
   summarise(total_medals = n()) |> 
   arrange(decade, desc(total_medals)) |> 
-  ggplot(aes(x = factor(decade), y = total_medals)) +
+  ggplot(aes(x = decade, y = total_medals)) +
   geom_bar(stat = "identity", position = "stack", color = "white", fill = "steelblue") +
+  scale_x_continuous(breaks = seq(1880, 2020, by = 10)) +
   labs(
     title = "Distribution of Olympic Medals by Decade",
     x = "Decade",
     y = "Total Medals"
   ) +
   theme(legend.position = "none")
+  
 ```
 
 <br>
 
-**Are there trends in certain countries dominating specific sports over time?**
+The number of medals given out during the Olympics has generally been increasing since the late 1800's, with 2 notable exceptions. Why do we see a dip in medals given during the 1910's and the 1940's?
 
-```{r results='hide'}
-domination <- olympics |> 
-  filter(!is.na(medal)) |> 
-  group_by(team, sport) |> 
-  summarise(total_medals = n()) |> 
-  arrange(sport, desc(total_medals)) |> 
-  ungroup() |> 
-  group_by(sport) |> 
-  mutate(total_sport_medals = sum(total_medals)) |> 
-  mutate(percentage_top = total_medals / total_sport_medals * 100) |> 
-  filter(percentage_top >= 25,
-         total_medals >= 10) 
-```
-
-The table below lists which countries have dominated specific sporting events in the Olympics (*along with the number of medals it's won*). A country is considered "dominant" if it has:
-
-1.  won at least 10 medals in that sport
-2.  won more than 25% of the total medals in that sport
-
-| Sport                     | Dominant Country        | Second Dominant (*if applicable*) |
-|-----------------------|---------------------|----------------------------|
-| Alpine Skiing             | Austria (*114*)         |                                   |
-| Alpinism                  | Great Britain (*12*)    |                                   |
-| Athletics                 | United States (*1,071*) |                                   |
-| Badminton                 | China (*64*)            |                                   |
-| Baseball                  | Cuba (*112*)            |                                   |
-| Basketball                | United States (*341*)   |                                   |
-| Beach Volleyball          | Brazil (*26*)           | United States (*20*)              |
-| Cricket                   | Great Britain (*12*)    | France (*12*)                     |
-| Curling                   | Canada (*48*)           |                                   |
-| Diving                    | United States (*140*)   |                                   |
-| Luge                      | Germany (*47*)          |                                   |
-| Racquets                  | Great Britain (*10*)    |                                   |
-| Rhythmic Gymnastics       | Russia (*45*)           |                                   |
-| Short Track Speed Skating | South Korea (*73*)      |                                   |
-| Snowboarding              | United States (*24*)    |                                   |
-| Softball                  | Australia (*60*)        | United States (*60*)              |
-| Swimming                  | United States (*1,066*) |                                   |
-| Synchronized Swimming     | Russia (*54*)           |                                   |
-| Table Tennis              | China (*81*)            |                                   |
-| Trampolining              | China (*11*)            |                                   |
+Since the opening of the first modern Olympic Games in 1896, the international sports competition has only been canceled 3 times: once during WWI (1916) and twice during WWII (1940, 1944).
 
 <br>
 
-##### **How has the age of all Olympians changed over time?**
+##### **How has the age of Olympians changed over time?**
 
 ```{r}
 
@@ -433,108 +541,73 @@ age <- olympics |>
   group_by(year) |> 
   summarise(avg_age = mean(age, na.rm = TRUE))
 
-ggplot(age, aes(x = year, y = avg_age)) +
-  geom_line() +
-  labs(
-    title = "Olympic Competitors",
-    x = "Year",
-    y = "Average Age"
-  ) +
-  scale_x_continuous(breaks = seq(1890, 2020, by = 10)) +
-  scale_y_continuous(breaks = seq(20, 33, by = 1))
-```
-
-##### **Has the average age of medal-winning athletes changed over the years?**
-
-```{r}
-
 age_winners <- olympics |> 
   filter(!is.na(medal)) |> 
   group_by(year) |> 
   summarise(avg_age = mean(age, na.rm = TRUE))
 
-ggplot(age_winners, aes(x = year, y = avg_age)) +
-  geom_line() +
-   labs(
-    title = "Olympic Medalists",
+ggplot() +
+  geom_line(data = age, aes(x = year, y = avg_age, color = "All Competitors"), size = 1) +
+  geom_line(data = age_winners, aes(x = year, y = avg_age, color = "Medal Winners"), size = 1) +
+  labs(
+    title = "Age of Olympic Competitors",
     x = "Year",
-    y = "Average Age"
-  ) +  
+    y = "Average Age",
+    color = "Legend"
+  ) +
+  scale_color_manual(
+    values = c("All Competitors" = "steelblue", "Medal Winners" = "gold"),
+    labels = c("All Competitors", "Medal Winners")
+  ) +
   scale_x_continuous(breaks = seq(1890, 2020, by = 10)) +
-  scale_y_continuous(breaks = seq(20, 30, by = 1))
-
+  scale_y_continuous(breaks = seq(20, 33, by = 1)) +
+  theme(panel.grid.minor = element_blank())
 ```
 
-## Predictive Models
+<br>
 
-**Athletics Medal Prediction Model**: Predict whether an athlete will win a medal based on age, height, weight, team, and sport.
+I found this graph interesting because it's so... weird! The ages of Olympians are all over the place between the late 1890's and the 1950's, drop way low during between 1960-2000, then get all jagged. What's going on?
 
-```{r results='hide'}
-athletics <- olympics |> 
-  filter(sport == "Athletics") |> 
-  mutate(medal_binary = ifelse(!is.na(medal), 1, 0))
-
-cor(athletics$medal_binary, athletics$age, use = "complete.obs")
-cor(athletics$medal_binary, athletics$height, use = "complete.obs")
-cor(athletics$medal_binary, athletics$weight, use = "complete.obs")
-```
+Early Olympic games included sports which tended to favor older competitors, the primary culprit being art competitions, which were part of the Olympic Games until 1948. If we take those individuals out, the graph becomes a bit more explainable, especially if we add a couple of important timeline markers for context.
 
 ```{r}
-athletics <- olympics |> 
-  filter(sport == "Athletics") |> 
-  mutate(medal_binary = ifelse(!is.na(medal), 1, 0))
 
-model_athletics <- lm(medal_binary ~ age + height + weight + team, data = athletics)
+age_2 <- olympics |> 
+  filter(sport != "Art Competitions") |>
+  group_by(year) |> 
+  summarise(avg_age = mean(age, na.rm = TRUE))
 
-tidy(model_athletics, conf.int = TRUE) |> 
-  filter(!str_starts(term, "team"))
-
-glance(model_athletics)
-```
-
-**Country Medal Count Forecasting**: Predict the total number of medals a country will win in a future Olympics.
-
-```{r regression model}
-
-country_medals <- olympics |> 
+age_winners_2 <- olympics |> 
+  filter(sport != "Art Competitions") |> 
   filter(!is.na(medal)) |> 
-  mutate(team = case_when(
-    team %in% c("United States Golf Association-3", "United States Virgin Islands", "United States-1", "United States-2", "United States-3", "United States-4") ~ "United States",
-    TRUE ~ team
-  )) |> 
-  group_by(team, year) |> 
-  summarise(total_medals = n(),
-            .groups = "drop")
+  group_by(year) |> 
+  summarise(avg_age = mean(age, na.rm = TRUE))
 
-# Aggregate additional features by country and year
-country_features <- olympics |> 
-  group_by(team, year) |> 
-  summarise(
-    num_athletes = n(),
-    avg_age = mean(age, na.rm = TRUE),
-    avg_height = mean(height, na.rm = TRUE),
-    avg_weight = mean(weight, na.rm = TRUE),
-    .groups = "drop"
-  )
-
-# Merge features with medal counts
-country_data <- country_medals |> 
-  left_join(country_features, by = c("team", "year"))
-
-# Fit a linear regression model
-model_medal_count_forecast <- lm(total_medals ~ num_athletes, data = country_data)
-
-# Summary of the model
-summary(model_medal_count_forecast)
-
+ggplot() +
+  geom_line(data = age_2, aes(x = year, y = avg_age, color = "All Competitors"), size = 1) +
+  geom_line(data = age_winners_2, aes(x = year, y = avg_age, color = "Medal Winners"), size = 1) +
+  labs(
+    title = "Age of Olympic Competitors",
+    subtitle = "Excluding Art Competitions",
+    x = "Year",
+    y = "Average Age",
+    color = "Legend"
+  ) +
+  scale_color_manual(
+    values = c("All Competitors" = "steelblue", "Medal Winners" = "gold"),
+    labels = c("All Competitors", "Medal Winners")
+  ) +
+  scale_x_continuous(breaks = seq(1890, 2020, by = 10)) +
+  scale_y_continuous(breaks = seq(20, 33, by = 1)) +
+  theme(panel.grid.minor = element_blank()) +
+  geom_vline(xintercept = c(1916, 1940, 1944), color = "red", size = 0.6) +
+  geom_vline(xintercept = 1994, color = "forestgreen", size = 0.6)
 ```
 
-```{r}
-# Predict medals for a future Olympics (e.g., 2028)
-new_data <- data.frame(
-  num_athletes = c(592)
-)
+<br>
 
-predicted_medals <- predict(model_medal_count_forecast, newdata = new_data)
-predicted_medals
-```
+The red lines? These are the 3 years the Olympic Games were cancelled due to world wars. With so many younger athletes going off to fight, the average age of competitors temporarily rose.
+
+The green line? Up until 1992, the Winter and Summer Games were held in the same year. Summer sports tend to attract younger athletes (gymnastics, swimming, diving, ,etc.), leaving the average age of Olympians to spike during the winter games cycle.
+
+But what explains the huge dip in average age, reaching its lowest in the 1980's? This reflects a global shift in sporting. During this time, global participation in the Olympics increased, bringing in younger athletes from more countries. This also coincided with advances in sports science, allowing athletes to peak at younger ages.
