@@ -62,7 +62,7 @@ olympics |>
 ```
 
 |          | Name                   | Measurement      | Country       | Sport                                       |
-|---------------|---------------|---------------|---------------|---------------|
+|----------|------------------------|------------------|---------------|---------------------------------------------|
 | Youngest | Dimitrios Loundras     | 10 years         | Greece        | Gymnastics Men's Parallel Bars              |
 | Oldest   | John Quincy Adams Ward | 97 years         | United States | Art Competitions Mixed Sculpturing, Statues |
 | Shortest | Rosario Briones        | 127cm (4ft, 2in) | Mexico        | Gymnastics Women's Individual All-Around    |
@@ -297,7 +297,7 @@ The table below lists which countries have dominated specific sporting events in
 <br>
 
 | Sport                     | Dominant Country        | Second Dominant (*if applicable*) |
-|-----------------------|---------------------|----------------------------|
+|---------------------------|-------------------------|-----------------------------------|
 | Alpine Skiing             | Austria (*114*)         |                                   |
 | Alpinism                  | Great Britain (*12*)    |                                   |
 | Athletics                 | United States (*1,071*) |                                   |
