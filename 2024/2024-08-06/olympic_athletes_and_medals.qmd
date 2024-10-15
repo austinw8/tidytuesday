@@ -61,12 +61,12 @@ olympics |>
   slice_head(n = 1) 
 ```
 
-|          | Name                   | Measurement      | Country       | Sport                                       |
-|----------|------------------------|------------------|---------------|---------------------------------------------|
-| Youngest | Dimitrios Loundras     | 10 years         | Greece        | Gymnastics Men's Parallel Bars              |
-| Oldest   | John Quincy Adams Ward | 97 years         | United States | Art Competitions Mixed Sculpturing, Statues |
-| Shortest | Rosario Briones        | 127cm (4ft, 2in) | Mexico        | Gymnastics Women's Individual All-Around    |
-| Tallest  | Yao Ming               | 226cm (7ft, 5in) | China         | Men's Basketball                            |
+|   | Name | Measurement | Country | Sport |
+|----|----|----|----|----|
+| Youngest | Dimitrios Loundras | 10 years | Greece | Gymnastics Men's Parallel Bars |
+| Oldest | John Quincy Adams Ward | 97 years | United States | Art Competitions Mixed Sculpturing, Statues |
+| Shortest | Rosario Briones | 127cm (4ft, 2in) | Mexico | Gymnastics Women's Individual All-Around |
+| Tallest | Yao Ming | 226cm (7ft, 5in) | China | Men's Basketball |
 
 <br>
 
@@ -296,28 +296,28 @@ The table below lists which countries have dominated specific sporting events in
 
 <br>
 
-| Sport                     | Dominant Country        | Second Dominant (*if applicable*) |
-|---------------------------|-------------------------|-----------------------------------|
-| Alpine Skiing             | Austria (*114*)         |                                   |
-| Alpinism                  | Great Britain (*12*)    |                                   |
-| Athletics                 | United States (*1,071*) |                                   |
-| Badminton                 | China (*64*)            |                                   |
-| Baseball                  | Cuba (*112*)            |                                   |
-| Basketball                | United States (*341*)   |                                   |
-| Beach Volleyball          | Brazil (*26*)           | United States (*20*)              |
-| Cricket                   | Great Britain (*12*)    | France (*12*)                     |
-| Curling                   | Canada (*48*)           |                                   |
-| Diving                    | United States (*140*)   |                                   |
-| Luge                      | Germany (*47*)          |                                   |
-| Racquets                  | Great Britain (*10*)    |                                   |
-| Rhythmic Gymnastics       | Russia (*45*)           |                                   |
-| Short Track Speed Skating | South Korea (*73*)      |                                   |
-| Snowboarding              | United States (*24*)    |                                   |
-| Softball                  | Australia (*60*)        | United States (*60*)              |
-| Swimming                  | United States (*1,066*) |                                   |
-| Synchronized Swimming     | Russia (*54*)           |                                   |
-| Table Tennis              | China (*81*)            |                                   |
-| Trampolining              | China (*11*)            |                                   |
+| Sport | Dominant Country | Second Dominant (*if applicable*) |
+|----|----|----|
+| Alpine Skiing | Austria (*114*) |  |
+| Alpinism | Great Britain (*12*) |  |
+| Athletics | United States (*1,071*) |  |
+| Badminton | China (*64*) |  |
+| Baseball | Cuba (*112*) |  |
+| Basketball | United States (*341*) |  |
+| Beach Volleyball | Brazil (*26*) | United States (*20*) |
+| Cricket | Great Britain (*12*) | France (*12*) |
+| Curling | Canada (*48*) |  |
+| Diving | United States (*140*) |  |
+| Luge | Germany (*47*) |  |
+| Racquets | Great Britain (*10*) |  |
+| Rhythmic Gymnastics | Russia (*45*) |  |
+| Short Track Speed Skating | South Korea (*73*) |  |
+| Snowboarding | United States (*24*) |  |
+| Softball | Australia (*60*) | United States (*60*) |
+| Swimming | United States (*1,066*) |  |
+| Synchronized Swimming | Russia (*54*) |  |
+| Table Tennis | China (*81*) |  |
+| Trampolining | China (*11*) |  |
 
 <br>
 

@@ -1,0 +1,169 @@
+---
+title: "Chess Game Dataset"
+author: "Austin Mangelson"
+format: 
+  html:
+    code-fold: true
+    code-tools: true
+    embed-resources: true
+editor: visual
+execute: 
+  warning: FALSE
+  message: FALSE
+---
+
+```{r}
+library(tidyverse)
+
+chess <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-10-01/chess.csv')
+```
+
+Questions
+
+-   most common opening move(s) for winners
+
+-   average game length
+
+-   **Rating Impact on Win Probability**:
+
+    -   Analyze how the difference in ratings between players (white vs black) correlates with the probability of winning. You can also look at this for rated and unrated games separately.
+
+<!-- -->
+
+-   **Game Length vs Winner**:
+
+    -   Compare the number of turns in games where the white player won vs the black player. This could reveal whether certain types of games (short or long) favor one color.
+
+-   **Opening Strategy Effectiveness**:
+
+    -   Evaluate the success rates of different chess openings (based on `opening_eco` or `opening_name`). You can check win rates and whether certain openings tend to lead to shorter or longer games.
+
+-   **Time Control Influence**:
+
+    -   Investigate how different time controls (given by `time_increment`) impact the number of turns and the win/loss ratio. Does faster time control favor higher-rated players more than slower ones?
+
+-   **Opening Ply and Game Outcome**:
+
+    -   Examine whether the number of opening moves (`opening_ply`) has any relationship with the outcome of the game. Do longer openings indicate more decisive games, or does it lead to draws?
+
+-   **Moves Complexity**:
+
+    -   Explore whether longer move sequences or games with more complex opening names lead to victories by higher-rated players. Use `moves` data to analyze depth and variability in the game.
+
+-   **Victory Status Breakdown**:
+
+    -   Analyze the breakdown of victory statuses (`victory_status`): checkmate, resignation, time, or stalemate, and correlate them with player ratings, game length, and openings.
+
+-   **Rated vs Unrated Games**:
+
+    -   Compare rated and unrated games for trends in victory status, number of turns, and moves to see if players behave differently in casual vs rated environments.
+
+------------------------------------------------------------------------
+
+## General Stats
+
+```{r}
+chess |> 
+  summarise(count = n_distinct(game_id))
+```
+
+19,113 games
+
+```{r}
+chess |> 
+  select(white_id, black_id) |> 
+  pivot_longer(cols = everything(), names_to = "color", values_to = "player_id") |>
+  distinct(player_id) |> 
+  summarise(count = n())
+```
+
+15,635 players
+
+```{r}
+win_dist <- chess |> 
+  group_by(winner) |> 
+  summarise(count = n()) |> 
+  arrange(desc(count))
+
+win_dist$fraction <- win_dist$count / sum(win_dist$count)
+win_dist$ymax <- cumsum(win_dist$fraction)
+win_dist$ymin <- c(0, head(win_dist$ymax, n = -1))
+win_dist$labelPosition <- (win_dist$ymax + win_dist$ymin) / 2
+
+win_dist$label <- paste0(
+  str_to_title(win_dist$winner), "\n",
+  format(win_dist$count, big.mark = ",", scientific = FALSE), " (",
+  round(win_dist$fraction * 100, 1), "%)"
+)
+
+
+ggplot(win_dist, aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = winner)) +
+  geom_rect(color = "black") +
+  geom_text(x = 1.4, aes(y = labelPosition, label = label), size = 3.5) + 
+  coord_polar(theta = "y") +
+  xlim(c(-1, 4)) +
+  scale_fill_manual(values = c("white" = "white", "black" = "black", "grey" = "grey")) +
+  theme_void() +
+  labs(
+    title = "Games Won by Piece Color",
+    fill = "Winner"
+  ) +
+    theme(legend.position = "none",
+          plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+
+chess |> 
+  group_by(winner) |> 
+  summarise(count = n()) |> 
+  arrange(desc(count))
+
+observed <- c(1001, 9107, 950)
+expected <- c(9554, 9554, 950)
+chisq.test(observed, p = expected / sum(expected))
+```
+
+The data suggests that **White has a significant advantage** when going first.
+
+The chi-squared test with a p-value of 2.2e-16 indicates that White’s higher win rate (*10001 wins vs. 9107 for Black*) is unlikely to be due to random variation, and White likely has a real, statistically significant advantage by moving first.
+
+------------------------------------------------------------------------
+
+## Opening Moves
+
+```{r}
+
+opening_summary <- chess |> 
+  filter(winner != "draw") |> 
+  group_by(opening_name, winner) |> 
+  summarise(count = n(), .groups = "drop") |> 
+  arrange(desc(count))
+
+top_openings <- opening_summary |> 
+  group_by(opening_name) |> 
+  summarise(total_count = sum(count)) |> 
+  arrange(desc(total_count)) |> 
+  slice_head(n = 10) |> 
+  pull(opening_name)
+
+top_opening_summary <- opening_summary |> 
+  filter(opening_name %in% top_openings)
+
+ggplot(top_opening_summary, aes(y = reorder(opening_name, count), x = count, fill = winner)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +
+  scale_fill_manual(values = c("white" = "white", "black" = "black", "grey" = "grey")) +
+  scale_y_discrete(expand = expansion(mult = c(0.05, 0.05))) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    title = "Top Opening Moves by Winning color \n",
+    x = "Count", 
+    y = ""
+  ) 
+```

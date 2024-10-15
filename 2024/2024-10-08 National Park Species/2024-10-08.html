@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Austin Mangelson">
+<meta name="dcterms.date" content="2024-10-14">
+
+<title>National Park Species</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="2024-10-08_files/libs/clipboard/clipboard.min.js"></script>
+<script src="2024-10-08_files/libs/quarto-html/quarto.js"></script>
+<script src="2024-10-08_files/libs/quarto-html/popper.min.js"></script>
+<script src="2024-10-08_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="2024-10-08_files/libs/quarto-html/anchor.min.js"></script>
+<link href="2024-10-08_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="2024-10-08_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="2024-10-08_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="2024-10-08_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="2024-10-08_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">National Park Species</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Austin Mangelson </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 14, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="import-data" class="level2">
+<h2 class="anchored" data-anchor-id="import-data">Import Data</h2>
+<p>Data from <a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2024/2024-10-08/readme.md">https://github.com/rfordatascience/tidytuesday/blob/master/data/2024/2024-10-08/readme.md</a></p>
+<div id="cell-3" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#load libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lets_plot <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>LetsPlot.setup_html()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#load in data </span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-10-08/most_visited_nps_species_data.csv"</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>species_data <span class="op">=</span> pl.read_csv(url)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>species_data <span class="op">=</span> species_data.with_columns(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    pl.col(<span class="st">"ParkName"</span>).<span class="bu">str</span>.replace(<span class="st">" National Park$"</span>, <span class="st">""</span>, literal<span class="op">=</span><span class="va">False</span>).alias(<span class="st">"ParkName"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>species_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+
+            <div id="cMHHKy"></div>
+            <script type="text/javascript" data-lets-plot-script="library">
+                if(!window.letsPlotCallQueue) {
+                    window.letsPlotCallQueue = [];
+                }; 
+                window.letsPlotCall = function(f) {
+                    window.letsPlotCallQueue.push(f);
+                };
+                (function() {
+                    var script = document.createElement("script");
+                    script.type = "text/javascript";
+                    script.src = "https://cdn.jsdelivr.net/gh/JetBrains/lets-plot@v4.4.1/js-package/distr/lets-plot.min.js";
+                    script.onload = function() {
+                        window.letsPlotCall = function(f) {f();};
+                        window.letsPlotCallQueue.forEach(function(f) {f();});
+                        window.letsPlotCallQueue = [];
+                        
+                    };
+                    script.onerror = function(event) {
+                        window.letsPlotCall = function(f) {};    // noop
+                        window.letsPlotCallQueue = [];
+                        var div = document.createElement("div");
+                        div.style.color = 'darkred';
+                        div.textContent = 'Error loading Lets-Plot JS';
+                        document.getElementById("cMHHKy").appendChild(div);
+                    };
+                    var e = document.getElementById("cMHHKy");
+                    e.appendChild(script);
+                })()
+            </script>
+            
+</div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (61_119, 28)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ParkCode</th>
+<th data-quarto-table-cell-role="th">ParkName</th>
+<th data-quarto-table-cell-role="th">CategoryName</th>
+<th data-quarto-table-cell-role="th">Order</th>
+<th data-quarto-table-cell-role="th">Family</th>
+<th data-quarto-table-cell-role="th">TaxonRecordStatus</th>
+<th data-quarto-table-cell-role="th">SciName</th>
+<th data-quarto-table-cell-role="th">CommonNames</th>
+<th data-quarto-table-cell-role="th">Synonyms</th>
+<th data-quarto-table-cell-role="th">ParkAccepted</th>
+<th data-quarto-table-cell-role="th">Sensitive</th>
+<th data-quarto-table-cell-role="th">RecordStatus</th>
+<th data-quarto-table-cell-role="th">Occurrence</th>
+<th data-quarto-table-cell-role="th">OccurrenceTags</th>
+<th data-quarto-table-cell-role="th">Nativeness</th>
+<th data-quarto-table-cell-role="th">NativenessTags</th>
+<th data-quarto-table-cell-role="th">Abundance</th>
+<th data-quarto-table-cell-role="th">NPSTags</th>
+<th data-quarto-table-cell-role="th">ParkTags</th>
+<th data-quarto-table-cell-role="th">References</th>
+<th data-quarto-table-cell-role="th">Observations</th>
+<th data-quarto-table-cell-role="th">Vouchers</th>
+<th data-quarto-table-cell-role="th">ExternalLinks</th>
+<th data-quarto-table-cell-role="th">TEStatus</th>
+<th data-quarto-table-cell-role="th">StateStatus</th>
+<th data-quarto-table-cell-role="th">OzoneSensitiveStatus</th>
+<th data-quarto-table-cell-role="th">GRank</th>
+<th data-quarto-table-cell-role="th">SRank</th>
+</tr>
+<tr class="odd">
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>bool</th>
+<th>bool</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>i64</th>
+<th>i64</th>
+<th>i64</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+<th>str</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"ACAD"</td>
+<td>"Acadia"</td>
+<td>"Mammal"</td>
+<td>"Artiodactyla"</td>
+<td>"Cervidae"</td>
+<td>"Active"</td>
+<td>"Alces alces"</td>
+<td>"Moose"</td>
+<td>null</td>
+<td>true</td>
+<td>false</td>
+<td>"Approved"</td>
+<td>"Present"</td>
+<td>"NA"</td>
+<td>"Native"</td>
+<td>"NA"</td>
+<td>"Rare"</td>
+<td>"Resident"</td>
+<td>"NA"</td>
+<td>11</td>
+<td>1</td>
+<td>0</td>
+<td>"NA"</td>
+<td>"50"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"G5"</td>
+<td>"ME: S5"</td>
+</tr>
+<tr class="even">
+<td>"ACAD"</td>
+<td>"Acadia"</td>
+<td>"Mammal"</td>
+<td>"Artiodactyla"</td>
+<td>"Cervidae"</td>
+<td>"Active"</td>
+<td>"Odocoileus virginianus"</td>
+<td>"Northern White-tailed Deer, Vi…</td>
+<td>null</td>
+<td>true</td>
+<td>false</td>
+<td>"Approved"</td>
+<td>"Present"</td>
+<td>"NA"</td>
+<td>"Native"</td>
+<td>"NA"</td>
+<td>"Abundant"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>20</td>
+<td>0</td>
+<td>0</td>
+<td>"NA"</td>
+<td>"50"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"G5"</td>
+<td>"ME: S5"</td>
+</tr>
+<tr class="odd">
+<td>"ACAD"</td>
+<td>"Acadia"</td>
+<td>"Mammal"</td>
+<td>"Carnivora"</td>
+<td>"Canidae"</td>
+<td>"Active"</td>
+<td>"Canis latrans"</td>
+<td>"Coyote, Eastern Coyote"</td>
+<td>null</td>
+<td>true</td>
+<td>false</td>
+<td>"Approved"</td>
+<td>"Present"</td>
+<td>"NA"</td>
+<td>"Non-native"</td>
+<td>"NA"</td>
+<td>"Common"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>8</td>
+<td>1</td>
+<td>0</td>
+<td>"NA"</td>
+<td>"SC"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"G5"</td>
+<td>"ME: S5"</td>
+</tr>
+<tr class="even">
+<td>"ACAD"</td>
+<td>"Acadia"</td>
+<td>"Mammal"</td>
+<td>"Carnivora"</td>
+<td>"Canidae"</td>
+<td>"Active"</td>
+<td>"Canis lupus"</td>
+<td>"Eastern Timber Wolf, Gray Wolf…</td>
+<td>null</td>
+<td>true</td>
+<td>false</td>
+<td>"Approved"</td>
+<td>"Unconfirmed"</td>
+<td>"NA"</td>
+<td>"Native"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>"NA"</td>
+<td>"E"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"G5"</td>
+<td>"ME: SH"</td>
+</tr>
+<tr class="odd">
+<td>"ACAD"</td>
+<td>"Acadia"</td>
+<td>"Mammal"</td>
+<td>"Carnivora"</td>
+<td>"Canidae"</td>
+<td>"Active"</td>
+<td>"Vulpes vulpes"</td>
+<td>"Black Fox, Cross Fox, Eastern …</td>
+<td>null</td>
+<td>true</td>
+<td>false</td>
+<td>"Approved"</td>
+<td>"Present"</td>
+<td>"NA"</td>
+<td>"Unknown"</td>
+<td>"NA"</td>
+<td>"Common"</td>
+<td>"Breeder"</td>
+<td>"NA"</td>
+<td>16</td>
+<td>0</td>
+<td>0</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"G5"</td>
+<td>"ME: S5"</td>
+</tr>
+<tr class="even">
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr class="odd">
+<td>"ZION"</td>
+<td>"Zion"</td>
+<td>"Vascular Plant"</td>
+<td>"Solanales"</td>
+<td>"Solanaceae"</td>
+<td>"Active"</td>
+<td>"Solanum triflorum"</td>
+<td>"cut-leaf nightshade"</td>
+<td>null</td>
+<td>true</td>
+<td>false</td>
+<td>"Approved"</td>
+<td>"Present"</td>
+<td>"NA"</td>
+<td>"Native"</td>
+<td>"NA"</td>
+<td>"Uncommon"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"G5"</td>
+<td>"UT: SNR"</td>
+</tr>
+<tr class="even">
+<td>"ZION"</td>
+<td>"Zion"</td>
+<td>"Vascular Plant"</td>
+<td>"Vitales"</td>
+<td>"Vitaceae"</td>
+<td>"Active"</td>
+<td>"Vitis arizonica"</td>
+<td>"canyon grape"</td>
+<td>null</td>
+<td>true</td>
+<td>false</td>
+<td>"Approved"</td>
+<td>"Present"</td>
+<td>"NA"</td>
+<td>"Native"</td>
+<td>"NA"</td>
+<td>"Uncommon"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>3</td>
+<td>0</td>
+<td>8</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"G4G5"</td>
+<td>"UT: S1"</td>
+</tr>
+<tr class="odd">
+<td>"ZION"</td>
+<td>"Zion"</td>
+<td>"Vascular Plant"</td>
+<td>"Vitales"</td>
+<td>"Vitaceae"</td>
+<td>"Active"</td>
+<td>"Vitis vinifera"</td>
+<td>"wine grape"</td>
+<td>null</td>
+<td>true</td>
+<td>false</td>
+<td>"Approved"</td>
+<td>"Present"</td>
+<td>"NA"</td>
+<td>"Non-native"</td>
+<td>"NA"</td>
+<td>"Uncommon"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"G4"</td>
+<td>"UT: SNA"</td>
+</tr>
+<tr class="even">
+<td>"ZION"</td>
+<td>"Zion"</td>
+<td>"Vascular Plant"</td>
+<td>"Zygophyllales"</td>
+<td>"Zygophyllaceae"</td>
+<td>"Active"</td>
+<td>"Larrea tridentata"</td>
+<td>"creosote bush"</td>
+<td>null</td>
+<td>true</td>
+<td>false</td>
+<td>"Approved"</td>
+<td>"Present"</td>
+<td>"NA"</td>
+<td>"Native"</td>
+<td>"NA"</td>
+<td>"Rare"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>3</td>
+<td>0</td>
+<td>1</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"G5"</td>
+<td>"UT: SNR"</td>
+</tr>
+<tr class="odd">
+<td>"ZION"</td>
+<td>"Zion"</td>
+<td>"Vascular Plant"</td>
+<td>"Zygophyllales"</td>
+<td>"Zygophyllaceae"</td>
+<td>"Active"</td>
+<td>"Tribulus terrestris"</td>
+<td>"puncture vine"</td>
+<td>null</td>
+<td>true</td>
+<td>false</td>
+<td>"Approved"</td>
+<td>"Present"</td>
+<td>"NA"</td>
+<td>"Non-native"</td>
+<td>"NA"</td>
+<td>"Uncommon"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>3</td>
+<td>0</td>
+<td>2</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"NA"</td>
+<td>"GNR"</td>
+<td>"UT: SNA"</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="species-diversity-by-park" class="level2">
+<h2 class="anchored" data-anchor-id="species-diversity-by-park">Species Diversity by Park</h2>
+<div id="cell-5" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>species_per_park <span class="op">=</span> species_data.select([<span class="st">"ParkName"</span>, <span class="st">"SciName"</span>]).unique().group_by(<span class="st">"ParkName"</span>).count().rename({<span class="st">"count"</span>:<span class="st">"number_of_species"</span>}).sort(<span class="st">"number_of_species"</span>, descending <span class="op">=</span> <span class="va">True</span>).head(<span class="dv">10</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>species_per_park</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    ggplot(species_per_park, aes(x <span class="op">=</span> <span class="st">"number_of_species"</span>, y <span class="op">=</span> as_discrete(<span class="st">"ParkName"</span>, order_by <span class="op">=</span> <span class="st">"number_of_species"</span>, order<span class="op">=</span><span class="dv">1</span>))) <span class="op">+</span> </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    geom_bar(stat <span class="op">=</span> <span class="st">"identity"</span>) <span class="op">+</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    labs(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        title <span class="op">=</span> <span class="st">"Species Diversity by US National Park </span><span class="ch">\n</span><span class="st">"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="st">"Number of Species"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        y <span class="op">=</span> <span class="st">"Park Name"</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">+</span> </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    theme_minimal()</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="2">
+   <div id="lP437W"></div>
+   <script type="text/javascript" data-lets-plot-script="plot">
+       (function() {
+           var plotSpec={
+"data":{
+"ParkName":["Great Smoky Mountains","Yellowstone","Rocky Mountain","Grand Canyon","Glacier","Indiana Dunes","Joshua Tree","Grand Teton","Yosemite","Hot Springs"],
+"number_of_species":[28655.0,4175.0,3201.0,2707.0,2559.0,2483.0,2316.0,2245.0,2086.0,1972.0]
+},
+"mapping":{
+"x":"number_of_species",
+"y":"ParkName"
+},
+"data_meta":{
+"series_annotations":[{
+"type":"str",
+"column":"ParkName"
+},{
+"type":"int",
+"column":"number_of_species"
+}],
+"mapping_annotations":[{
+"parameters":{
+"label":"ParkName",
+"order_by":"number_of_species",
+"order":1.0
+},
+"aes":"y",
+"annotation":"as_discrete"
+}]
+},
+"ggtitle":{
+"text":"Species Diversity by US National Park \n"
+},
+"guides":{
+"x":{
+"title":"Number of Species"
+},
+"y":{
+"title":"Park Name"
+}
+},
+"theme":{
+"name":"minimal"
+},
+"kind":"plot",
+"scales":[],
+"layers":[{
+"geom":"bar",
+"stat":"identity",
+"mapping":{
+},
+"data_meta":{
+},
+"orientation":"y",
+"data":{
+}
+}],
+"metainfo_list":[]
+};
+           var plotContainer = document.getElementById("lP437W");
+           window.letsPlotCall(function() {{
+               LetsPlot.buildPlotFromProcessedSpecs(plotSpec, -1, -1, plotContainer);
+           }});
+       })();
+   </script>
+</div>
+</div>
+<p>Why is Great Smoky Mountains National Park so biodiverse?</p>
+<p><em>“Great Smoky Mountains National Park is known to be the most biologically diverse in the entire National Park system. This biodiversity is in part a result of its past as a refuge for animals and plants migrating south away from glaciers. It can also be attributed to its mild, rainy climate. Scientists have identified 19,000 different species of plants and animals in the park and think that as many as 100,000 other species may have yet to be identified.”</em> – <a href="https://www.usgs.gov/geology-and-ecology-of-national-parks/ecology-great-smoky-mountains-national-park-0#:~:text=Great%20Smoky%20Mountains%20National%20Park%20is%20known%20to%20be%20the,to%20its%20mild%2C%20rainy%20climate.">USGS</a></p>
+<div id="cell-7" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># grsm_taxonomy = (</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># species_data</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># .filter(pl.col("ParkCode") == "GRSM")</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># .unique()</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># .with_columns(</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     pl.col("SciName")</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#     .str.split_exact(" ", 1)</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#     .struct.rename_fields(["Genus", "Species"])</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     .alias("fields")</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ).unnest("fields")</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># .select(["Order", "Family", "Genus"])</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># .with_columns(pl.col("Species").str.to_titlecase())</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># grsm_taxonomy</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># grsm_taxonomy.group_by("Genus").count().sort("count", descending = True)</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># import plotly.express as px</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># grsm_taxonomy_df = grsm_taxonomy_breakdown.to_pandas()</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># grsm_taxonomy_df["Species"] = grsm_taxonomy_df["Species"].fillna("Unknown")</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># fig = px.sunburst(</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#    grsm_taxonomy_df,</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#    path = ["Order", "Family", "Genus", "Species"],</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#    values=None,</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#    title = "Sunburst Chart of GRSM National Park"</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co"># fig.show()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="national-parks-ranked-by-biodiversity" class="level2">
+<h2 class="anchored" data-anchor-id="national-parks-ranked-by-biodiversity">National Parks Ranked by Biodiversity</h2>
+<div id="cell-9" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>animals <span class="op">=</span> (</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    species_data</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        pl.col(<span class="st">"CategoryName"</span>).is_in([<span class="st">"Insect"</span>, <span class="st">"Spider/Scorpion"</span>, <span class="st">"Bird"</span>, <span class="st">"Other Non-vertebrates"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">"Mammal"</span>, <span class="st">"Fish"</span>, <span class="st">"Slug/Snail"</span>, <span class="st">"Reptile"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">"Crab/Lobster/Shrimp"</span>, <span class="st">"Amphibian"</span>])</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    .with_columns(</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        pl.when(pl.col(<span class="st">"CategoryName"</span>) <span class="op">==</span> <span class="st">"Slug/Snail"</span>).then(pl.lit(<span class="st">"Invertebrate"</span>))</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        .when(pl.col(<span class="st">"CategoryName"</span>) <span class="op">==</span> <span class="st">"Other Non-vertebrates"</span>).then(pl.lit(<span class="st">"Invertebrate"</span>))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        .when(pl.col(<span class="st">"CategoryName"</span>) <span class="op">==</span> <span class="st">"Insect"</span>).then(pl.lit(<span class="st">"Invertebrate"</span>))</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        .when(pl.col(<span class="st">"CategoryName"</span>) <span class="op">==</span> <span class="st">"Spider/Scorpion"</span>).then(pl.lit(<span class="st">"Invertebrate"</span>))</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        .when(pl.col(<span class="st">"CategoryName"</span>) <span class="op">==</span> <span class="st">"Crab/Lobster/Shrimp"</span>).then(pl.lit(<span class="st">"Invertebrate"</span>))</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        .otherwise(pl.col(<span class="st">"CategoryName"</span>))</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        .alias(<span class="st">"Category"</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    .group_by([<span class="st">"ParkName"</span>, <span class="st">"Category"</span>])</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    .count()</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    .sort(<span class="st">"count"</span>, descending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>animals_vertebrates <span class="op">=</span> animals.<span class="bu">filter</span>(pl.col(<span class="st">"Category"</span>) <span class="op">!=</span> <span class="st">"Invertebrate"</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>values <span class="op">=</span> {</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Bird"</span>:<span class="st">"#8EA163"</span>, </span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Fish"</span>:<span class="st">"#1A8FA5"</span>, </span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mammal"</span>:<span class="st">"#EFCF72"</span>, </span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Reptile"</span>:<span class="st">"#EF8C64"</span>, </span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Amphibian"</span>:<span class="st">"#9DC9B7"</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    ggplot(animals_vertebrates, aes(x <span class="op">=</span> <span class="st">"count"</span>, y <span class="op">=</span> as_discrete(<span class="st">"ParkName"</span>, order_by<span class="op">=</span><span class="st">"count"</span>, order <span class="op">=</span> <span class="dv">1</span>), fill <span class="op">=</span> <span class="st">"Category"</span>)) <span class="op">+</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>           geom_bar(stat <span class="op">=</span> <span class="st">"identity"</span>) <span class="op">+</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>           scale_fill_manual(values <span class="op">=</span> values) <span class="op">+</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>           labs( <span class="co"># type: ignore</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>               title <span class="op">=</span> <span class="st">"National Parks Ranked by Animal Biodiversity </span><span class="ch">\n</span><span class="st"> (excluding invertebrates) </span><span class="ch">\n</span><span class="st">"</span>,</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>               x <span class="op">=</span> <span class="st">"Number of Species"</span>,</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>               y <span class="op">=</span> <span class="st">"Park Name"</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>           )</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="4">
+   <div id="eGVCRE"></div>
+   <script type="text/javascript" data-lets-plot-script="plot">
+       (function() {
+           var plotSpec={
+"data":{
+"ParkName":["Grand Canyon","Hot Springs","Acadia","Indiana Dunes","Yellowstone","Olympic","Joshua Tree","Zion","Rocky Mountain","Glacier","Yosemite","Great Smoky Mountains","Grand Teton","Cuyahoga Valley","Bryce Canyon","Great Smoky Mountains","Grand Canyon","Great Smoky Mountains","Olympic","Hot Springs","Yosemite","Cuyahoga Valley","Zion","Olympic","Yellowstone","Grand Canyon","Bryce Canyon","Indiana Dunes","Rocky Mountain","Grand Teton","Glacier","Joshua Tree","Indiana Dunes","Great Smoky Mountains","Acadia","Hot Springs","Hot Springs","Joshua Tree","Great Smoky Mountains","Cuyahoga Valley","Acadia","Indiana Dunes","Zion","Grand Canyon","Glacier","Hot Springs","Indiana Dunes","Cuyahoga Valley","Cuyahoga Valley","Grand Teton","Yosemite","Yellowstone","Olympic","Acadia","Zion","Grand Canyon","Yosemite","Bryce Canyon","Rocky Mountain","Acadia","Yosemite","Yellowstone","Yellowstone","Zion","Olympic","Glacier","Grand Teton","Joshua Tree","Rocky Mountain","Grand Teton","Bryce Canyon","Glacier","Rocky Mountain","Bryce Canyon","Joshua Tree"],
+"Category":["Bird","Bird","Bird","Bird","Bird","Bird","Bird","Bird","Bird","Bird","Bird","Bird","Bird","Bird","Bird","Fish","Mammal","Mammal","Fish","Fish","Mammal","Fish","Mammal","Mammal","Mammal","Reptile","Mammal","Fish","Mammal","Mammal","Mammal","Mammal","Mammal","Amphibian","Mammal","Reptile","Mammal","Reptile","Reptile","Mammal","Fish","Reptile","Reptile","Fish","Fish","Amphibian","Amphibian","Reptile","Amphibian","Fish","Reptile","Fish","Amphibian","Amphibian","Fish","Amphibian","Amphibian","Reptile","Fish","Reptile","Fish","Reptile","Amphibian","Amphibian","Reptile","Amphibian","Amphibian","Amphibian","Amphibian","Reptile","Amphibian","Reptile","Reptile","Fish","Fish"],
+"count":[456.0,387.0,364.0,353.0,330.0,310.0,301.0,301.0,278.0,277.0,270.0,267.0,266.0,246.0,218.0,110.0,107.0,101.0,97.0,90.0,87.0,85.0,80.0,79.0,78.0,76.0,76.0,76.0,75.0,74.0,69.0,67.0,60.0,58.0,55.0,52.0,52.0,52.0,47.0,47.0,38.0,30.0,30.0,29.0,27.0,27.0,24.0,24.0,24.0,23.0,22.0,19.0,16.0,15.0,15.0,15.0,14.0,13.0,12.0,11.0,10.0,9.0,9.0,7.0,6.0,6.0,6.0,5.0,5.0,5.0,4.0,4.0,3.0,1.0,1.0]
+},
+"mapping":{
+"x":"count",
+"y":"ParkName",
+"fill":"Category"
+},
+"data_meta":{
+"series_annotations":[{
+"type":"str",
+"column":"ParkName"
+},{
+"type":"str",
+"column":"Category"
+},{
+"type":"int",
+"column":"count"
+}],
+"mapping_annotations":[{
+"parameters":{
+"label":"ParkName",
+"order_by":"count",
+"order":1.0
+},
+"aes":"y",
+"annotation":"as_discrete"
+}]
+},
+"ggtitle":{
+"text":"National Parks Ranked by Animal Biodiversity \n (excluding invertebrates) \n"
+},
+"guides":{
+"x":{
+"title":"Number of Species"
+},
+"y":{
+"title":"Park Name"
+}
+},
+"kind":"plot",
+"scales":[{
+"aesthetic":"fill",
+"breaks":["Bird","Fish","Mammal","Reptile","Amphibian"],
+"values":["#8EA163","#1A8FA5","#EFCF72","#EF8C64","#9DC9B7"]
+}],
+"layers":[{
+"geom":"bar",
+"stat":"identity",
+"mapping":{
+},
+"data_meta":{
+},
+"orientation":"y",
+"data":{
+}
+}],
+"metainfo_list":[]
+};
+           var plotContainer = document.getElementById("eGVCRE");
+           window.letsPlotCall(function() {{
+               LetsPlot.buildPlotFromProcessedSpecs(plotSpec, -1, -1, plotContainer);
+           }});
+       })();
+   </script>
+</div>
+</div>
+<div id="cell-10" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#     ggplot(animals, aes(x = "count", y = as_discrete("ParkName", order_by="count", order = 1), fill = "Category")) +</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#            geom_bar(stat = "identity") +</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#            scale_fill_manual(values=["#8EA163", "#1A8FA5", "#EFCF72", "#EF8C64", "#9DC9B7"]) +</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#            labs(</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#                title = "National Parks Ranked by Animal Biodiversity \n (including invertebrates) \n",</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#                x = "Number of Species",</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#                y = "Park Name"</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#            )</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="cell-11" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>plants <span class="op">=</span> (</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    species_data</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        pl.col(<span class="st">"CategoryName"</span>).is_in([<span class="st">"Vascular Plant"</span>, <span class="st">"Non-vascular Plant"</span>])</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    .group_by([<span class="st">"ParkName"</span>, <span class="st">"CategoryName"</span>])</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    .count()</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    .sort(<span class="st">"count"</span>, descending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    ggplot(plants, aes(x <span class="op">=</span> <span class="st">"count"</span>, y <span class="op">=</span> as_discrete(<span class="st">"ParkName"</span>, order_by<span class="op">=</span><span class="st">"count"</span>, order <span class="op">=</span> <span class="dv">1</span>), fill <span class="op">=</span> <span class="st">"CategoryName"</span>)) <span class="op">+</span> <span class="co"># type: ignore</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>           geom_bar(stat <span class="op">=</span> <span class="st">"identity"</span>) <span class="op">+</span> <span class="co"># type: ignore</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>           scale_fill_manual(values<span class="op">=</span>[<span class="st">"#8EA163"</span>, <span class="st">"#1A8FA5"</span>]) <span class="op">+</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>           labs( <span class="co"># type: ignore</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>               title <span class="op">=</span> <span class="st">"National Parks Ranked by Plant Biodiversity </span><span class="ch">\n</span><span class="st">"</span>,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>               x <span class="op">=</span> <span class="st">"Number of Species"</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>               y <span class="op">=</span> <span class="st">"Park Name"</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>           )</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="6">
+   <div id="Tc5zW5"></div>
+   <script type="text/javascript" data-lets-plot-script="plot">
+       (function() {
+           var plotSpec={
+"data":{
+"ParkName":["Great Smoky Mountains","Grand Canyon","Yosemite","Grand Teton","Indiana Dunes","Yellowstone","Zion","Olympic","Joshua Tree","Glacier","Hot Springs","Cuyahoga Valley","Acadia","Rocky Mountain","Great Smoky Mountains","Bryce Canyon","Rocky Mountain","Glacier","Hot Springs","Yellowstone","Joshua Tree"],
+"CategoryName":["Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Vascular Plant","Non-vascular Plant","Vascular Plant","Non-vascular Plant","Non-vascular Plant","Non-vascular Plant","Non-vascular Plant","Non-vascular Plant"],
+"count":[2163.0,1753.0,1683.0,1645.0,1622.0,1444.0,1366.0,1352.0,1314.0,1269.0,1252.0,1239.0,1226.0,1119.0,1039.0,975.0,416.0,404.0,18.0,15.0,6.0]
+},
+"mapping":{
+"x":"count",
+"y":"ParkName",
+"fill":"CategoryName"
+},
+"data_meta":{
+"series_annotations":[{
+"type":"str",
+"column":"ParkName"
+},{
+"type":"str",
+"column":"CategoryName"
+},{
+"type":"int",
+"column":"count"
+}],
+"mapping_annotations":[{
+"parameters":{
+"label":"ParkName",
+"order_by":"count",
+"order":1.0
+},
+"aes":"y",
+"annotation":"as_discrete"
+}]
+},
+"ggtitle":{
+"text":"National Parks Ranked by Plant Biodiversity \n"
+},
+"guides":{
+"x":{
+"title":"Number of Species"
+},
+"y":{
+"title":"Park Name"
+}
+},
+"kind":"plot",
+"scales":[{
+"aesthetic":"fill",
+"values":["#8EA163","#1A8FA5"]
+}],
+"layers":[{
+"geom":"bar",
+"stat":"identity",
+"mapping":{
+},
+"data_meta":{
+},
+"orientation":"y",
+"data":{
+}
+}],
+"metainfo_list":[]
+};
+           var plotContainer = document.getElementById("Tc5zW5");
+           window.letsPlotCall(function() {{
+               LetsPlot.buildPlotFromProcessedSpecs(plotSpec, -1, -1, plotContainer);
+           }});
+       })();
+   </script>
+</div>
+</div>
+<div id="cell-12" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>misc <span class="op">=</span> (</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    species_data</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        pl.col(<span class="st">"CategoryName"</span>).is_in([<span class="st">"Fungi"</span>, <span class="st">"Chromista"</span>, <span class="st">"Bacteria"</span>, <span class="st">"Protozoa"</span>])</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    .group_by([<span class="st">"ParkName"</span>, <span class="st">"CategoryName"</span>])</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    .count()</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    .sort(<span class="st">"count"</span>, descending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    ggplot(misc, aes(x <span class="op">=</span> <span class="st">"count"</span>, y <span class="op">=</span> as_discrete(<span class="st">"ParkName"</span>, order_by<span class="op">=</span><span class="st">"count"</span>, order <span class="op">=</span> <span class="dv">1</span>), fill <span class="op">=</span> <span class="st">"CategoryName"</span>)) <span class="op">+</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>           geom_bar(stat <span class="op">=</span> <span class="st">"identity"</span>) <span class="op">+</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>           scale_fill_manual(values<span class="op">=</span>[<span class="st">"#8EA163"</span>, <span class="st">"#1A8FA5"</span>, <span class="st">"#EFCF72"</span>, <span class="st">"#EF8C64"</span>]) <span class="op">+</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>           labs( <span class="co"># type: ignore</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>               title <span class="op">=</span> <span class="st">"National Parks Ranked by Other Biodiversity </span><span class="ch">\n</span><span class="st">"</span>,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>               x <span class="op">=</span> <span class="st">"Number of Species"</span>,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>               y <span class="op">=</span> <span class="st">"Park Name"</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>           )</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="7">
+   <div id="V8fMWZ"></div>
+   <script type="text/javascript" data-lets-plot-script="plot">
+       (function() {
+           var plotSpec={
+"data":{
+"ParkName":["Great Smoky Mountains","Great Smoky Mountains","Rocky Mountain","Great Smoky Mountains","Glacier","Great Smoky Mountains","Yellowstone","Rocky Mountain","Indiana Dunes","Rocky Mountain","Joshua Tree","Yellowstone","Grand Teton","Hot Springs","Joshua Tree","Yellowstone","Hot Springs","Hot Springs","Rocky Mountain","Joshua Tree","Yellowstone","Glacier","Grand Teton"],
+"CategoryName":["Fungi","Chromista","Fungi","Bacteria","Fungi","Protozoa","Chromista","Chromista","Fungi","Bacteria","Fungi","Fungi","Fungi","Chromista","Bacteria","Protozoa","Protozoa","Bacteria","Protozoa","Chromista","Bacteria","Chromista","Chromista"],
+"count":[5243.0,654.0,306.0,294.0,276.0,257.0,204.0,150.0,69.0,45.0,38.0,37.0,28.0,24.0,23.0,18.0,12.0,10.0,9.0,5.0,4.0,2.0,1.0]
+},
+"mapping":{
+"x":"count",
+"y":"ParkName",
+"fill":"CategoryName"
+},
+"data_meta":{
+"series_annotations":[{
+"type":"str",
+"column":"ParkName"
+},{
+"type":"str",
+"column":"CategoryName"
+},{
+"type":"int",
+"column":"count"
+}],
+"mapping_annotations":[{
+"parameters":{
+"label":"ParkName",
+"order_by":"count",
+"order":1.0
+},
+"aes":"y",
+"annotation":"as_discrete"
+}]
+},
+"ggtitle":{
+"text":"National Parks Ranked by Other Biodiversity \n"
+},
+"guides":{
+"x":{
+"title":"Number of Species"
+},
+"y":{
+"title":"Park Name"
+}
+},
+"kind":"plot",
+"scales":[{
+"aesthetic":"fill",
+"values":["#8EA163","#1A8FA5","#EFCF72","#EF8C64"]
+}],
+"layers":[{
+"geom":"bar",
+"stat":"identity",
+"mapping":{
+},
+"data_meta":{
+},
+"orientation":"y",
+"data":{
+}
+}],
+"metainfo_list":[]
+};
+           var plotContainer = document.getElementById("V8fMWZ");
+           window.letsPlotCall(function() {{
+               LetsPlot.buildPlotFromProcessedSpecs(plotSpec, -1, -1, plotContainer);
+           }});
+       })();
+   </script>
+</div>
+</div>
+<div id="cell-13" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>animal_list <span class="op">=</span> (<span class="st">"Mammal"</span>, <span class="st">"Bird"</span>, <span class="st">"Fish"</span>, <span class="st">"Reptile"</span>, <span class="st">"Amphibian"</span>, <span class="st">"Insect"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>selected_park <span class="op">=</span> <span class="st">"Zion"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>specific_park_data <span class="op">=</span> species_data.<span class="bu">filter</span>(pl.col(<span class="st">"ParkName"</span>) <span class="op">==</span> selected_park)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>animals_in_park <span class="op">=</span> (species_data</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                   .<span class="bu">filter</span>((pl.col(<span class="st">"ParkName"</span>) <span class="op">==</span> selected_park) <span class="op">&amp;</span> (pl.col(<span class="st">"CategoryName"</span>).is_in(animal_list)))</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                   .group_by(<span class="st">"CategoryName"</span>).agg(pl.col(<span class="st">"CategoryName"</span>).count().alias(<span class="st">"Count"</span>))</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                   )</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>animals_in_park</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (5, 2)</small>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">CategoryName</th>
+<th data-quarto-table-cell-role="th">Count</th>
+</tr>
+<tr class="odd">
+<th>str</th>
+<th>u32</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>"Fish"</td>
+<td>15</td>
+</tr>
+<tr class="even">
+<td>"Amphibian"</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td>"Bird"</td>
+<td>301</td>
+</tr>
+<tr class="even">
+<td>"Reptile"</td>
+<td>30</td>
+</tr>
+<tr class="odd">
+<td>"Mammal"</td>
+<td>80</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="cell-14" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lets_plot <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>values <span class="op">=</span> {</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Bird"</span>:<span class="st">"#8EA163"</span>, </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Fish"</span>:<span class="st">"#1A8FA5"</span>, </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mammal"</span>:<span class="st">"#EFCF72"</span>, </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Reptile"</span>:<span class="st">"#EF8C64"</span>, </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Amphibian"</span>:<span class="st">"#9DC9B7"</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    ggplot(animals_in_park) <span class="op">+</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    geom_pie(aes(<span class="bu">slice</span> <span class="op">=</span> <span class="st">"Count"</span>, fill <span class="op">=</span> <span class="st">"CategoryName"</span>), stat <span class="op">=</span> <span class="st">"identity"</span>) <span class="op">+</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    scale_fill_manual(values <span class="op">=</span> values) <span class="op">+</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    theme_void()</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="9">
+   <div id="gDPXjU"></div>
+   <script type="text/javascript" data-lets-plot-script="plot">
+       (function() {
+           var plotSpec={
+"data":{
+"CategoryName":["Fish","Amphibian","Bird","Reptile","Mammal"],
+"Count":[15.0,7.0,301.0,30.0,80.0]
+},
+"mapping":{
+},
+"data_meta":{
+"series_annotations":[{
+"type":"str",
+"column":"CategoryName"
+},{
+"type":"int",
+"column":"Count"
+}]
+},
+"theme":{
+"name":"classic",
+"line":"blank",
+"axis":"blank"
+},
+"kind":"plot",
+"scales":[{
+"aesthetic":"fill",
+"breaks":["Bird","Fish","Mammal","Reptile","Amphibian"],
+"values":["#8EA163","#1A8FA5","#EFCF72","#EF8C64","#9DC9B7"]
+}],
+"layers":[{
+"geom":"pie",
+"stat":"identity",
+"mapping":{
+"slice":"Count",
+"fill":"CategoryName"
+},
+"data_meta":{
+},
+"data":{
+}
+}],
+"metainfo_list":[]
+};
+           var plotContainer = document.getElementById("gDPXjU");
+           window.letsPlotCall(function() {{
+               LetsPlot.buildPlotFromProcessedSpecs(plotSpec, -1, -1, plotContainer);
+           }});
+       })();
+   </script>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
