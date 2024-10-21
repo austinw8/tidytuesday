@@ -2,13 +2,7 @@ import streamlit as st
 import pandas as pd
 import polars as pl
 import matplotlib.pyplot as plt
-import numpy as np
 from lets_plot import *
-import plotly.express as px
-import matplotlib.image as mpimg
-import requests
-from io import BytesIO
-from PIL import Image
 LetsPlot.setup_html()
 
 # Load dataset
