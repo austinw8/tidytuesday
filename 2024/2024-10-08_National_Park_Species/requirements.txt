@@ -3,3 +3,4 @@ pandas
 polars
 matplotlib
 matplotlib-inline
+lets_plot
