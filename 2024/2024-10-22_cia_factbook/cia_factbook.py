@@ -1,7 +1,6 @@
 import polars as pl
 import streamlit as st
 import plotly.express as px
-import folium as fl
 
 cia_factbook = pl.read_csv(
     "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-10-22/cia_factbook.csv", null_values="NA")
